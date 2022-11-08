@@ -2,8 +2,8 @@
 
 using namespace std;
 
-const int monfri18 = 22;
-const int monfri21 = 45;
+const int weekday18 = 22;
+const int weekday21 = 45;
 const int sat13 = 45;
 const int sat15 = 55;
 const int sat18 = 110;
@@ -108,10 +108,10 @@ int insert_monday(){
         cin >> option;
         if (option == "y") {
             if (hour >= 21) {
-                totalsalary = wage + monfri21 + totalsalary;
+                totalsalary = wage + weekday21 + totalsalary;
                 hour++;
             } else if (hour >= 18) {
-                totalsalary = wage + monfri18 + totalsalary;
+                totalsalary = wage + weekday18 + totalsalary;
                 hour++;
             } else {
                 totalsalary = wage + totalsalary;
@@ -135,10 +135,10 @@ int insert_tuesday(){
         cin >> option;
         if (option == "y") {
             if (hour >= 21) {
-                totalsalary = wage + monfri21 + totalsalary;
+                totalsalary = wage + weekday21 + totalsalary;
                 hour++;
             } else if (hour >= 18) {
-                totalsalary = wage + monfri18 + totalsalary;
+                totalsalary = wage + weekday18 + totalsalary;
                 hour++;
             } else {
                 totalsalary = wage + totalsalary;
@@ -162,10 +162,10 @@ int insert_wednesday(){
         cin >> option;
         if (option == "y") {
             if (hour >= 21) {
-                totalsalary = wage + monfri21 + totalsalary;
+                totalsalary = wage + weekday21 + totalsalary;
                 hour++;
             } else if (hour >= 18) {
-                totalsalary = wage + monfri18 + totalsalary;
+                totalsalary = wage + weekday18 + totalsalary;
                 hour++;
             } else {
                 totalsalary = wage + totalsalary;
@@ -189,10 +189,10 @@ int insert_thursday(){
         cin >> option;
         if (option == "y") {
             if (hour >= 21) {
-                totalsalary = wage + monfri21 + totalsalary;
+                totalsalary = wage + weekday21 + totalsalary;
                 hour++;
             } else if (hour >= 18) {
-                totalsalary = wage + monfri18 + totalsalary;
+                totalsalary = wage + weekday18 + totalsalary;
                 hour++;
             } else {
                 totalsalary = wage + totalsalary;
@@ -216,10 +216,10 @@ int insert_friday(){
         cin >> option;
         if (option == "y") {
             if (hour >= 21) {
-                totalsalary = wage + monfri21 + totalsalary;
+                totalsalary = wage + weekday21 + totalsalary;
                 hour++;
             } else if (hour >= 18) {
-                totalsalary = wage + monfri18 + totalsalary;
+                totalsalary = wage + weekday18 + totalsalary;
                 hour++;
             } else {
                 totalsalary = wage + totalsalary;
