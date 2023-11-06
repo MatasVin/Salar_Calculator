@@ -1,299 +1,145 @@
-#include "iostream"
+#include <iostream>
+#include <limits>
 
 using namespace std;
 
+// Constants for additional pay rates
 const int weekday18 = 22;
 const int weekday21 = 45;
-const int sat13 = 45;
-const int sat15 = 55;
-const int sat18 = 110;
-int totalsalary;
-int wage;
+const int saturday13 = 45;
+const int saturday15 = 55;
+const int saturday18 = 110;
 
-int insert_wage();
-int insert_monday();
-int insert_tuesday();
-int insert_wednesday();
-int insert_thursday();
-int insert_friday();
-int insert_saturday();
-int insert_sunday();
-int calculate_total();
+float hourlyRate = 0.0f;
+float totalEarnings = 0.0f;
+float taxPercentage = 0.0f;
+
+// Function to clear the input buffer
+void clearCin() {
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+// Function to calculate pay for a given hour
+float calculateHourlyPay(int hour, bool isSaturday) {
+    if (isSaturday) {
+        if (hour >= 18) return hourlyRate + saturday18;
+        else if (hour >= 15) return hourlyRate + saturday15;
+        else if (hour >= 13) return hourlyRate + saturday13;
+        else return hourlyRate;
+    } else {
+        if (hour >= 21) return hourlyRate + weekday21;
+        else if (hour >= 18) return hourlyRate + weekday18;
+        else return hourlyRate;
+    }
+}
+
+// Helper function to calculate pay for partial hours (minutes)
+float calculatePartialHourlyPay(int hour, int minutes, bool isSaturday) {
+    float partialHourRate = calculateHourlyPay(hour, isSaturday) / 60.0f; // Divide by 60 to get the per-minute rate
+    return partialHourRate * static_cast<float>(minutes);
+}
+
+// Modified function to enter and calculate a shift with minutes
+void enterShift(bool isSaturday) {
+    int startHour, startMinutes, endHour, endMinutes;
+    cout << "Enter the start time of your shift (HH MM): ";
+    while (!(cin >> startHour >> startMinutes) || startHour < 0 || startHour > 23 || startMinutes < 0 || startMinutes > 59) {
+        cout << "Invalid input. Please enter an hour (0-23) and minutes (0-59): ";
+        clearCin();
+    }
+
+    cout << "Enter the end time of your shift (HH MM): ";
+    while (!(cin >> endHour >> endMinutes) || endHour < 0 || endHour > 24 || endMinutes < 0 || endMinutes > 59 || (endHour == startHour && endMinutes <= startMinutes)) {
+        cout << "Invalid input. Please enter an hour (0-24) and minutes (0-59), which is later than the start time: ";
+        clearCin();
+    }
+
+    // Calculate earnings for each hour and partial hour in the shift
+    float shiftEarnings = 0.0f;
+
+    // Calculate earnings for the starting partial hour if there are minutes
+    if (startMinutes > 0) {
+        shiftEarnings += calculatePartialHourlyPay(startHour, 60 - startMinutes, isSaturday);
+        startHour++; // Move to the next hour
+    }
+
+    // Calculate earnings for whole hours
+    for (int hour = startHour; hour < endHour; ++hour) {
+        shiftEarnings += calculateHourlyPay(hour, isSaturday);
+    }
+
+    // Calculate earnings for the ending partial hour
+    if (endHour != 24 && endMinutes > 0) {
+        shiftEarnings += calculatePartialHourlyPay(endHour, endMinutes, isSaturday);
+    }
+
+    // Deduct break time from total earnings if the shift is longer than 5 hours
+    int totalShiftMinutes = (endHour - startHour) * 60 + endMinutes - startMinutes;
+    if (totalShiftMinutes > 300) { // 300 minutes = 5 hours
+        shiftEarnings -= calculatePartialHourlyPay(startHour + 3, 30, isSaturday); // Deduct the unpaid 30 min break
+    }
+
+    totalEarnings += shiftEarnings;
+    cout << "Shift added. Current total salary: " << totalEarnings << " NOK." << endl;
+}
+
+// Function to set the hourly wage
+void setHourlyRate() {
+    cout << "Enter your hourly wage: ";
+    while (!(cin >> hourlyRate) || hourlyRate <= 0) {
+        cout << "Invalid input. Please enter a positive number for the hourly wage: ";
+        clearCin();
+    }
+}
+
+// Function to set the tax percentage
+void setTaxPercentage() {
+    cout << "Enter the tax percentage: ";
+    while (!(cin >> taxPercentage) || taxPercentage < 0 || taxPercentage > 100) {
+        cout << "Invalid input. Please enter a percentage between 0 and 100: ";
+        clearCin();
+    }
+}
 
 int main() {
+    int choice;
 
-    char option;
-    cout << endl;
-    cout <<"*********************************";
-    cout <<"\nPlease follow the steps and enter a command: ";
-    cout <<"\n'1': Enter your wage";
-    cout <<"\n'2': Enter a Monday shift";
-    cout <<"\n'3': Enter a Tuesday shift";
-    cout <<"\n'4': Enter a Wednesday shift";
-    cout <<"\n'5': Enter a Thursday shift";
-    cout <<"\n'6': Enter a Friday shift";
-    cout <<"\n'7': Enter a Saturday shift";
-    cout <<"\n'8': Enter a Sunday shift";
-    cout <<"\n'9': See the total earnings";
-    cout <<"\n'0': Quit";
-    cout <<"\n*********************************";
-    cout <<"\ninsert your chosen option here:";
-    cin >> option;
+    do {
+        cout << "*********************************" << endl;
+        cout << "Please follow the steps and enter a command:" << endl;
+        cout << "'1': Enter your hourly wage" << endl;
+        cout << "'2': Enter a weekday shift" << endl;
+        cout << "'3': Enter a Saturday shift" << endl;
+        cout << "'4': Enter tax percentage" << endl;
+        cout << "'5': See the total earnings" << endl;
+        cout << "'0': Quit" << endl;
+        cout << "*********************************" << endl;
+        cout << "Insert your chosen option here: ";
+        cin >> choice;
 
-    switch (option) {
-
-        case '1':
-            insert_wage();
-            cout << "Your base wage is set to " << wage << endl;
-            break;
-
-        case '2':
-            insert_monday();
-            break;
-
-        case '3':
-            insert_tuesday();
-            break;
-
-        case '4':
-            insert_wednesday();
-            break;
-
-        case '5':
-            insert_thursday();
-            break;
-
-        case '6':
-            insert_friday();
-            break;
-
-        case '7':
-            insert_saturday();
-            break;
-
-        case '8':
-            insert_sunday();
-            break;
-
-        case '9':
-            calculate_total();
-            break;
-
-        case '0':
-            cout<< "Bye";
-            exit(0);
-
-        default:
-
-            cout<<"Please enter a valid input"<<endl;
-
-
-    }
-
-    main();
-}
-
-int insert_wage(){
-    cout<<"\nEnter your current base wage: " << endl;
-    cin >> wage;
-    return wage;
-}
-int insert_monday(){
-    int hour;
-    string option;
-    cout << "When did you start your monday shift? ";
-    cin >> hour;
-    while(true){
-        cout << "Have you worked at this hour '" << hour << "'? y/n " << endl;
-        cin >> option;
-        if (option == "y") {
-            if (hour >= 21) {
-                totalsalary = wage + weekday21 + totalsalary;
-                hour++;
-            } else if (hour >= 18) {
-                totalsalary = wage + weekday18 + totalsalary;
-                hour++;
-            } else {
-                totalsalary = wage + totalsalary;
-                hour++;
-            }
+        switch (choice) {
+            case 1:
+                setHourlyRate();
+                break;
+            case 2:
+                enterShift(false); // false for weekday
+                break;
+            case 3:
+                enterShift(true); // true for Saturday
+                break;
+            case 4:
+                setTaxPercentage();
+                break;
+            case 5:
+                cout << "Total earnings before tax: " << totalEarnings << " NOK" << endl;
+                cout << "Total earnings after tax: " << (totalEarnings - (totalEarnings * (taxPercentage / 100))) << " NOK" << endl;
+                break;
+            case 0:
+                break;
+            default:
+                cout << "Invalid option. Please try again." << endl;
         }
-        else{
-            break;
-        }
-    }
+    } while (choice != 0);
 
- return totalsalary;
-}
-int insert_tuesday(){
-    int hour;
-    string option;
-    cout << "When did you start your tuesday shift? ";
-    cin >> hour;
-    while(true){
-        cout << "Have you worked at this hour '" << hour << "'? y/n " << endl;
-        cin >> option;
-        if (option == "y") {
-            if (hour >= 21) {
-                totalsalary = wage + weekday21 + totalsalary;
-                hour++;
-            } else if (hour >= 18) {
-                totalsalary = wage + weekday18 + totalsalary;
-                hour++;
-            } else {
-                totalsalary = wage + totalsalary;
-                hour++;
-            }
-        }
-        else{
-            break;
-        }
-    }
-
-    return totalsalary;
-}
-int insert_wednesday(){
-    int hour;
-    string option;
-    cout << "When did you start your wednesday shift? ";
-    cin >> hour;
-    while(true){
-        cout << "Have you worked at this hour '" << hour << "'? y/n " << endl;
-        cin >> option;
-        if (option == "y") {
-            if (hour >= 21) {
-                totalsalary = wage + weekday21 + totalsalary;
-                hour++;
-            } else if (hour >= 18) {
-                totalsalary = wage + weekday18 + totalsalary;
-                hour++;
-            } else {
-                totalsalary = wage + totalsalary;
-                hour++;
-            }
-        }
-        else{
-            break;
-        }
-    }
-
-    return totalsalary;
-}
-int insert_thursday(){
-    int hour;
-    string option;
-    cout << "When did you start your thursday shift? ";
-    cin >> hour;
-    while(true){
-        cout << "Have you worked at this hour '" << hour << "'? y/n " << endl;
-        cin >> option;
-        if (option == "y") {
-            if (hour >= 21) {
-                totalsalary = wage + weekday21 + totalsalary;
-                hour++;
-            } else if (hour >= 18) {
-                totalsalary = wage + weekday18 + totalsalary;
-                hour++;
-            } else {
-                totalsalary = wage + totalsalary;
-                hour++;
-            }
-        }
-        else{
-            break;
-        }
-    }
-
-    return totalsalary;
-}
-int insert_friday(){
-    int hour;
-    string option;
-    cout << "When did you start your friday shift? ";
-    cin >> hour;
-    while(true){
-        cout << "Have you worked at this hour '" << hour << "'? y/n " << endl;
-        cin >> option;
-        if (option == "y") {
-            if (hour >= 21) {
-                totalsalary = wage + weekday21 + totalsalary;
-                hour++;
-            } else if (hour >= 18) {
-                totalsalary = wage + weekday18 + totalsalary;
-                hour++;
-            } else {
-                totalsalary = wage + totalsalary;
-                hour++;
-            }
-        }
-        else{
-            break;
-        }
-    }
-
-    return totalsalary;
-}
-int insert_saturday(){
-    int hour;
-    string option;
-    cout << "When did you start your saturday shift? ";
-    cin >> hour;
-    while(true){
-        cout << "Have you worked at this hour '" << hour << "'? y/n " << endl;
-        cin >> option;
-        if (option == "y") {
-            if (hour >= 18) {
-                totalsalary = wage + sat18 + totalsalary;
-                hour++;
-            } else if (hour >= 15) {
-                totalsalary = wage + sat15 + totalsalary;
-                hour++;
-            } else if(hour >= 13){
-                totalsalary = wage+ sat13 + totalsalary;
-                hour++;
-            } else{
-                totalsalary = wage + totalsalary;
-                hour++;
-            }
-        }
-        else{
-            break;
-        }
-    }
-
-    return totalsalary;
-}
-int insert_sunday(){
-    int hour;
-    string option;
-    cout << "When did you start your sunday shift? ";
-    cin >> hour;
-    while(true){
-        cout << "Have you worked at this hour '" << hour << "'? y/n " << endl;
-        cin >> option;
-        if (option == "y") {
-            if (hour >= 18) {
-                totalsalary = wage + sat18 + totalsalary;
-                hour++;
-            } else if (hour >= 15) {
-                totalsalary = wage + sat15 + totalsalary;
-                hour++;
-            } else if(hour >= 13){
-                totalsalary = wage+ sat13 + totalsalary;
-                hour++;
-            } else{
-                totalsalary = wage + totalsalary;
-                hour++;
-            }
-        }
-        else{
-            break;
-        }
-    }
-
-    return totalsalary;
-}
-int calculate_total(){
-    cout << "Your total salary is " << totalsalary << " NOK";
-    return totalsalary;
+    return 0;
 }
